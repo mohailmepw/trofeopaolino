@@ -1,393 +1,371 @@
 <script setup>
 import { ref } from 'vue'
 
-defineProps({
-  teams: {
-    type: Array,
-    required: true
-  }
+const props = defineProps({
+  teams: { type: Array, required: true },
+  matches: { type: Array, default: () => [] }
 })
 
-const selectedTeam = ref(null)
-const showModal = ref(false)
+const expandedTeam = ref(null)
 
-const openTeam = (team) => {
-  selectedTeam.value = team
-  showModal.value = true
+const toggle = (id) => {
+  expandedTeam.value = expandedTeam.value === id ? null : id
 }
 
-const closeModal = () => {
-  showModal.value = false
-  selectedTeam.value = null
+const getInitials = (name) => {
+  if (!name) return '?'
+  const parts = name.trim().split(/[-\s]+/)
+  return parts.length >= 2
+    ? (parts[0][0] + parts[1][0]).toUpperCase()
+    : name.slice(0, 2).toUpperCase()
+}
+
+const playerIcon = (p) => {
+  if (p.capitano) return { icon: 'C', label: 'Capitano', cls: 'icon-captain' }
+  if (p.jolly)    return { icon: '★', label: 'Jolly',    cls: 'icon-jolly'   }
+  if (p.esterno)  return { icon: '↗', label: 'Esterno',  cls: 'icon-esterno' }
+  return null
+}
+
+// Marcatori di una squadra dalle partite terminate
+const getScorers = (teamName) => {
+  const scorers = {}
+  props.matches.forEach(m => {
+    if (!m.risultato || !m.marcatori) return
+    const list = m.marcatori.filter(s => s.squadra === teamName)
+    list.forEach(s => {
+      scorers[s.nome] = (scorers[s.nome] || 0) + s.gol
+    })
+  })
+  return Object.entries(scorers)
+    .map(([nome, gol]) => ({ nome, gol }))
+    .sort((a, b) => b.gol - a.gol)
 }
 </script>
 
 <template>
-  <div class="teams-grid">
-    <div 
-      v-for="(team, index) in teams" 
+  <div class="teams-list">
+
+    <div
+      v-for="team in teams"
       :key="team.id"
       class="team-card"
-      :style="{ 
-        '--delay': index * 0.1 + 's',
-        '--team-color': team.color 
-      }"
-      @click="openTeam(team)"
+      :class="{ open: expandedTeam === team.id }"
     >
-      <div class="team-logo">{{ team.logo }}</div>
-      <div class="team-name">{{ team.nome }}</div>
-      <div class="team-badge" :style="{ background: team.color }"></div>
-    </div>
-    
-    <div v-if="teams.length === 0" class="empty-state">
-      <span class="empty-icon">
-        <div class="empty-users"></div>
-      </span>
-      <p>Nessuna squadra presente</p>
-    </div>
-  </div>
-
-  <!-- Player Modal -->
-  <Teleport to="body">
-    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-content" :style="{ '--team-color': selectedTeam?.color }">
-        <button class="close-btn" @click="closeModal">×</button>
-        
-        <div class="modal-header">
-          <div class="modal-team-logo">{{ selectedTeam?.logo }}</div>
-          <h2 class="modal-team-name">{{ selectedTeam?.nome }}</h2>
-        </div>
-        
-        <div class="players-container">
-          <h3 class="players-title">Rosa Squadra</h3>
-          <div class="players-list">
-            <div 
-              v-for="(player, index) in selectedTeam?.giocatori" 
-              :key="index"
-              class="player-item"
-:class="{ 'is-captain': player.capitano, 'is-jolly': player.jolly }"
-              :style="{ '--delay': index * 0.05 + 's' }"
-            >
-              <span class="player-name">
-{{ player.nome }} {{ player.jolly ? '⭐' : '' }}
-                <span v-if="player.capitano" class="captain-badge">
-                  <span class="captain-icon">★</span>
-                </span>
-
-              </span>
-            </div>
+      <!-- header row: sempre visibile -->
+      <div class="team-header" @click="toggle(team.id)">
+        <div class="team-left">
+          <div class="team-badge" :style="{ background: team.color }">
+            {{ getInitials(team.nome) }}
+          </div>
+          <div class="team-info">
+            <span class="team-name">{{ team.nome }}</span>
+            <span class="team-count">{{ team.giocatori?.length || 0 }} giocatori</span>
           </div>
         </div>
+        <div class="team-right">
+          <div class="team-pills">
+            <span v-if="team.giocatori?.some(p => p.capitano)" class="mini-pill captain">C</span>
+            <span v-if="team.giocatori?.some(p => p.jolly)"    class="mini-pill jolly">★</span>
+            <span v-if="team.giocatori?.some(p => p.esterno)"  class="mini-pill esterno">↗</span>
+          </div>
+          <div class="chevron" :class="{ rotated: expandedTeam === team.id }">›</div>
+        </div>
+      </div>
+
+      <!-- body: espandibile -->
+      <div v-if="expandedTeam === team.id" class="team-body">
+
+        <!-- lista giocatori -->
+        <div class="section-label">Rosa</div>
+        <div class="players-list">
+          <div
+            v-for="(p, i) in team.giocatori"
+            :key="i"
+            class="player-row"
+            :class="{
+              'p-captain': p.capitano,
+              'p-jolly':   p.jolly,
+              'p-esterno': p.esterno
+            }"
+          >
+            <span class="player-num">{{ i + 1 }}</span>
+            <span class="player-name">{{ p.nome }}</span>
+            <span v-if="playerIcon(p)" :class="['player-icon', playerIcon(p).cls]" :title="playerIcon(p).label">
+              {{ playerIcon(p).icon }}
+            </span>
+          </div>
+        </div>
+
+        <!-- legenda -->
+        <div class="legend">
+          <span class="legend-item"><span class="icon-captain">C</span> Capitano</span>
+          <span class="legend-item"><span class="icon-esterno">↗</span> Esterno</span>
+        </div>
+
+        <!-- marcatori -->
+        <template v-if="getScorers(team.nome).length > 0">
+          <div class="section-label scorers-label">Marcatori</div>
+          <div class="scorers-list">
+            <div
+              v-for="(s, i) in getScorers(team.nome)"
+              :key="i"
+              class="scorer-row"
+            >
+              <span class="scorer-name">{{ s.nome }}</span>
+              <span class="scorer-gol">{{ s.gol }} {{ s.gol === 1 ? 'gol' : 'gol' }}</span>
+            </div>
+          </div>
+        </template>
+
       </div>
     </div>
-  </Teleport>
+
+    <div v-if="teams.length === 0" class="empty-state">
+      <p>Nessuna squadra disponibile</p>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-.teams-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-.team-card {
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-  border-radius: 20px;
-  padding: 2rem;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  border: 2px solid transparent;
-  transition: all 0.4s ease;
-  animation: slideUp 0.6s ease forwards;
-  animation-delay: var(--delay);
-  opacity: 0;
-  cursor: pointer;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.team-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: var(--team-color);
-}
-
-.team-card:hover {
-  transform: translateY(-10px) scale(1.02);
-  border-color: var(--team-color);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
-
-.team-logo {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-.team-name {
-  color: #fff;
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
-.team-badge {
-  position: absolute;
-  bottom: -20px;
-  right: -20px;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  opacity: 0.2;
-}
-
-.empty-state {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 4rem;
-  color: rgba(255,255,255,0.5);
-}
-
-.empty-icon {
-  font-size: 4rem;
-  display: block;
-  margin-bottom: 1rem;
-}
-
-.empty-users {
-  width: 60px;
-  height: 60px;
-  margin: 0 auto;
-  position: relative;
-  opacity: 0.5;
-}
-
-.empty-users::before,
-.empty-users::after {
-  content: '';
-  position: absolute;
-  background: #888;
-  border-radius: 50%;
-}
-
-.empty-users::before {
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 25px;
-  height: 25px;
-}
-
-.empty-users::after {
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 50px;
-  height: 30px;
-  border-radius: 25px 25px 0 0;
-}
-
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-  backdrop-filter: blur(5px);
-}
-
-.modal-content {
-  background: linear-gradient(180deg, #1a3a5c 0%, #0d2840 100%);
-  border-radius: 25px;
-  padding: 2rem;
-  max-width: 500px;
-  width: 100%;
-  max-height: 80vh;
-  overflow-y: auto;
-  position: relative;
-  border: 2px solid var(--team-color, #1e90ff);
-  animation: modalSlide 0.3s ease;
-}
-
-@keyframes modalSlide {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.close-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: #fff;
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: rotate(90deg);
-}
-
-.modal-header {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.modal-team-logo {
-  font-size: 4rem;
-  margin-bottom: 0.5rem;
-}
-
-.modal-team-name {
-  color: #fff;
-  font-size: 1.8rem;
-  font-weight: 700;
-}
-
-.players-title {
-  color: #a8e6cf;
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.players-list {
+.teams-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 10px;
 }
 
-.player-item {
-  background: rgba(0, 0, 0, 0.3);
-  padding: 1rem;
-  border-radius: 12px;
-  animation: playerSlide 0.4s ease forwards;
-  animation-delay: var(--delay);
-  opacity: 0;
-  transition: all 0.3s ease;
+/* ── card ────────────────────────────────────────────────────────────────── */
+.team-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.2s;
 }
 
-@keyframes playerSlide {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.team-card.open {
+  border-color: rgba(255,255,255,0.18);
 }
 
-.player-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.player-item.is-captain {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 170, 0, 0.1) 100%);
-  border: 1px solid rgba(255, 215, 0, 0.3);
-}
-
-.player-item.is-jolly {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-}
-
-.player-name {
-  color: #fff;
-  font-size: 1.1rem;
-  font-weight: 500;
+/* ── header ──────────────────────────────────────────────────────────────── */
+.team-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+  gap: 12px;
 }
 
-.captain-badge {
-  display: inline-flex;
+.team-header:hover { background: rgba(255,255,255,0.04); }
+
+.team-left {
+  display: flex;
   align-items: center;
-  margin-left: 0.5rem;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
 }
 
-.captain-icon {
-  color: #ffd700;
-  font-size: 1.2rem;
-  animation: starPulse 2s infinite;
+.team-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
-@keyframes starPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+.team-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
-@media (max-width: 768px) {
-  .teams-grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 1rem;
-  }
-  
-  .team-card {
-    padding: 1.5rem;
-  }
-  
-  .team-logo {
-    font-size: 3rem;
-  }
-  
-  .modal-content {
-    padding: 1.5rem;
-  }
-  
-  .modal-team-logo {
-    font-size: 3rem;
-  }
-  
-  .modal-team-name {
-    font-size: 1.5rem;
-  }
+.team-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.team-count {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+}
+
+.team-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.team-pills {
+  display: flex;
+  gap: 4px;
+}
+
+.mini-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.mini-pill.captain { background: rgba(255,215,0,0.2);  color: #FFD700; }
+.mini-pill.jolly   { background: rgba(255,255,255,0.15); color: #fff;   }
+.mini-pill.esterno { background: rgba(96,165,250,0.2);  color: #60a5fa; }
+
+.chevron {
+  font-size: 20px;
+  color: rgba(255,255,255,0.3);
+  transition: transform 0.25s ease;
+  line-height: 1;
+  transform: rotate(90deg);
+}
+
+.chevron.rotated { transform: rotate(-90deg); }
+
+/* ── body ────────────────────────────────────────────────────────────────── */
+.team-body {
+  padding: 0 16px 16px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 14px 0 8px;
+}
+
+.scorers-label { margin-top: 18px; }
+
+/* ── players ─────────────────────────────────────────────────────────────── */
+.players-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.player-row:hover { background: rgba(255,255,255,0.04); }
+
+.p-captain { background: rgba(255,215,0,0.07) !important; }
+.p-jolly   { background: rgba(255,255,255,0.07) !important; }
+.p-esterno { background: rgba(96,165,250,0.06) !important; }
+
+.player-num {
+  font-size: 11px;
+  color: rgba(255,255,255,0.2);
+  width: 18px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.player-name {
+  flex: 1;
+  font-size: 14px;
+  color: rgba(255,255,255,0.85);
+  min-width: 0;
+}
+
+.player-icon {
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-captain { background: rgba(255,215,0,0.2);  color: #FFD700; }
+.icon-jolly   { background: rgba(255,255,255,0.15); color: #fff;   }
+.icon-esterno { background: rgba(96,165,250,0.2);  color: #60a5fa; }
+
+/* ── legend ──────────────────────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.legend-item {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── scorers ─────────────────────────────────────────────────────────────── */
+.scorers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scorer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+}
+
+.scorer-name {
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+}
+
+.scorer-gol {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4ade80;
+  background: rgba(74,222,128,0.12);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* ── empty ───────────────────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 48px 0;
+  color: rgba(255,255,255,0.3);
+  font-size: 14px;
+}
+
+/* ── responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .team-header { padding: 12px 14px; }
+  .team-badge  { width: 36px; height: 36px; font-size: 12px; }
+  .team-name   { font-size: 14px; }
+  .player-name { font-size: 13px; }
 }
 </style>
-
-

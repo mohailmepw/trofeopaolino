@@ -179,7 +179,7 @@ defineEmits(['update:activeTab'])
 }
 
 .icon-star::before {
-  content: '★';
+  content: '\2605';
   position: absolute;
   top: 50%;
   left: 50%;

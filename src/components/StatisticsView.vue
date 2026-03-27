@@ -1,391 +1,327 @@
 <script setup>
 const props = defineProps({
-  statistiche: {
-    type: Object,
-    required: true
-  },
-  teams: {
-    type: Array,
-    required: true
-  }
+  statistiche: { type: Object, required: true },
+  teams:        { type: Array,  required: true }
 })
 
-const getTeamInfo = (teamName) => {
-  const team = props.teams.find(t => t.nome === teamName)
-  return team ? { color: team.color, logo: team.logo } : { color: '#666', logo: 'S' }
+const getTeamColor = (name) => {
+  const t = props.teams.find(t => t.nome === name)
+  return t?.color || '#888'
 }
+
+const getInitials = (name) => {
+  if (!name) return '?'
+  const parts = name.trim().split(/[-\s]+/)
+  return parts.length >= 2
+    ? (parts[0][0] + parts[1][0]).toUpperCase()
+    : name.slice(0, 2).toUpperCase()
+}
+
+const rankColors = ['#FFD700', '#C0C0C0', '#CD7F32']
 </script>
 
 <template>
-  <div class="statistics-container">
-    <div class="stats-section">
-      <div class="section-header">
-        <div class="trophy-icon scorer-icon">
-          <div class="mini-trophy">
-            <div class="trophy-bowl-small"></div>
-            <div class="trophy-base-small"></div>
-          </div>
-        </div>
-        <h2 class="section-title">Miglior Marcatore</h2>
+  <div class="stats-wrap">
+
+    <!-- ── Marcatori ────────────────────────────────────────────────────── -->
+    <div class="stats-panel">
+      <div class="panel-header">
+        <div class="panel-icon icon-gold"></div>
+        <span class="panel-title">Marcatori</span>
       </div>
-      
-      <div class="players-list">
-        <div 
-          v-for="(player, index) in statistiche.migliorMarcatore" 
-          :key="player.nome"
-          class="player-card"
-          :class="{ 'top-3': index < 3 }"
-          :style="{ '--delay': index * 0.1 + 's' }"
+
+      <div v-if="statistiche.migliorMarcatore?.length" class="ranking-list">
+        <div
+          v-for="(p, i) in statistiche.migliorMarcatore"
+          :key="p.nome"
+          class="ranking-row"
+          :class="{ 'row-top': i < 3 }"
         >
-          <div class="player-rank">
-            <span v-if="index === 0" class="medal gold">1</span>
-            <span v-else-if="index === 1" class="medal silver">2</span>
-            <span v-else-if="index === 2" class="medal bronze">3</span>
-            <span v-else class="rank-number">{{ index + 1 }}</span>
+          <!-- accent bar top-3 -->
+          <div
+            v-if="i < 3"
+            class="row-accent"
+            :style="{ background: rankColors[i] }"
+          />
+
+          <!-- rank -->
+          <div class="rank-wrap">
+            <span
+              class="rank-num"
+              :style="i < 3 ? { color: rankColors[i] } : {}"
+            >{{ i + 1 }}</span>
           </div>
-          
-          <div class="player-info">
-            <div class="player-name">{{ player.nome }}</div>
-            <div class="player-team">
-              <span class="team-name-small">{{ player.squadra }}</span>
-            </div>
+
+          <!-- team badge -->
+          <div
+            class="team-dot"
+            :style="{ background: getTeamColor(p.squadra) }"
+            :title="p.squadra"
+          >{{ getInitials(p.squadra) }}</div>
+
+          <!-- info -->
+          <div class="row-info">
+            <span class="row-name">{{ p.nome }}</span>
+            <span class="row-team">{{ p.squadra }}</span>
           </div>
-          
-          <div class="player-stats">
-            <div class="stat-value">
-              {{ player.gol }}
-            </div>
+
+          <!-- bar + value -->
+          <div class="bar-wrap">
+            <div
+              class="bar"
+              :style="{
+                width: (p.gol / statistiche.migliorMarcatore[0].gol * 100) + '%',
+                background: i < 3 ? rankColors[i] : 'rgba(74,222,128,0.6)'
+              }"
+            />
           </div>
+          <span class="row-val" :style="i < 3 ? { color: rankColors[i] } : {}">
+            {{ p.gol }}
+          </span>
         </div>
-        
-        <div v-if="!statistiche.migliorMarcatore || statistiche.migliorMarcatore.length === 0" class="empty-state">
-          <div class="empty-icon">
-            <div class="empty-ball"></div>
-          </div>
-          <p>Ancora nessun gol</p>
-        </div>
+      </div>
+
+      <div v-else class="empty-state">
+        <div class="empty-circle"></div>
+        <p>Ancora nessun gol</p>
       </div>
     </div>
 
-    <div class="stats-section">
-      <div class="section-header">
-        <div class="trophy-icon assist-icon">
-          <div class="assist-arrow">
-            <span class="arrow-line"></span>
-            <span class="arrow-head"></span>
-          </div>
-        </div>
-        <h2 class="section-title">Clean Sheets</h2>
+    <!-- ── Clean Sheets ─────────────────────────────────────────────────── -->
+    <div class="stats-panel">
+      <div class="panel-header">
+        <div class="panel-icon icon-blue"></div>
+        <span class="panel-title">Clean Sheets</span>
       </div>
-      
-      <div class="players-list">
-        <div 
-          v-for="(player, index) in statistiche.cleanSheets" 
-          :key="player.nome"
-          class="player-card"
-          :class="{ 'top-3': index < 3 }"
-          :style="{ '--delay': index * 0.1 + 's' }"
+
+      <div v-if="statistiche.cleanSheets?.length" class="ranking-list">
+        <div
+          v-for="(p, i) in statistiche.cleanSheets"
+          :key="p.nome"
+          class="ranking-row"
+          :class="{ 'row-top': i < 3 }"
         >
-          <div class="player-rank">
-            <span v-if="index === 0" class="medal gold">1</span>
-            <span v-else-if="index === 1" class="medal silver">2</span>
-            <span v-else-if="index === 2" class="medal bronze">3</span>
-            <span v-else class="rank-number">{{ index + 1 }}</span>
+          <div
+            v-if="i < 3"
+            class="row-accent"
+            :style="{ background: rankColors[i] }"
+          />
+
+          <div class="rank-wrap">
+            <span
+              class="rank-num"
+              :style="i < 3 ? { color: rankColors[i] } : {}"
+            >{{ i + 1 }}</span>
           </div>
-          
-          <div class="player-info">
-            <div class="player-name">{{ player.nome }}</div>
-            <div class="player-team">
-              <span class="team-name-small">{{ player.squadra }}</span>
-            </div>
+
+          <div
+            class="team-dot"
+            :style="{ background: getTeamColor(p.squadra) }"
+            :title="p.squadra"
+          >{{ getInitials(p.squadra) }}</div>
+
+          <div class="row-info">
+            <span class="row-name">{{ p.nome }}</span>
+            <span class="row-team">{{ p.squadra }}</span>
           </div>
-          
-          <div class="player-stats">
-            <div class="stat-value assist">
-              {{ player.assist }}
-            </div>
+
+          <div class="bar-wrap">
+            <div
+              class="bar bar-blue"
+              :style="{
+                width: (p.cleanSheets / statistiche.cleanSheets[0].cleanSheets * 100) + '%',
+                background: i < 3 ? rankColors[i] : 'rgba(96,165,250,0.6)'
+              }"
+            />
           </div>
+          <span class="row-val row-val-blue" :style="i < 3 ? { color: rankColors[i] } : {}">
+            {{ p.cleanSheets }}
+          </span>
         </div>
-        
-        <div v-if="!statistiche.cleanSheets || statistiche.cleanSheets.length === 0" class="empty-state">
-          <div class="empty-icon">
-            <div class="empty-arrow"></div>
-          </div>
-          <p>Ancora nessuna clean sheet</p>
-        </div>
+      </div>
+
+      <div v-else class="empty-state">
+        <div class="empty-circle empty-circle-blue"></div>
+        <p>Ancora nessuna clean sheet</p>
       </div>
     </div>
+
   </div>
 </template>
 
 <style scoped>
-.statistics-container {
+.stats-wrap {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
 }
 
-.stats-section {
-  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
-  border-radius: 20px;
-  padding: 1.5rem;
-  border: 1px solid rgba(255,255,255,0.1);
+/* ── panel ─────────────────────────────────────────────────────────────── */
+.stats-panel {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  overflow: hidden;
 }
 
-.section-header {
+.panel-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  gap: 10px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
-.trophy-icon {
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.panel-icon {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.scorer-icon {
-  background: linear-gradient(135deg, rgba(255,215,0,0.3) 0%, rgba(255,170,0,0.1) 100%);
+.icon-gold { background: #FFD700; box-shadow: 0 0 8px rgba(255,215,0,0.6); }
+.icon-blue { background: #60a5fa; box-shadow: 0 0 8px rgba(96,165,250,0.6); }
+
+.panel-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
-.assist-icon {
-  background: linear-gradient(135deg, rgba(96,165,250,0.3) 0%, rgba(59,130,246,0.1) 100%);
-}
-
-.mini-trophy {
-  position: relative;
-  width: 30px;
-  height: 30px;
-}
-
-.trophy-bowl-small {
-  position: absolute;
-  top: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 15px;
-  background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
-  border-radius: 0 0 10px 10px;
-}
-
-.trophy-base-small {
-  position: absolute;
-  top: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 10px;
-  height: 10px;
-  background: linear-gradient(180deg, #b8860b 0%, #8b6914 100%);
-}
-
-.assist-arrow {
-  position: relative;
-  width: 30px;
-  height: 20px;
-}
-
-.arrow-line {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 20px;
-  height: 4px;
-  background: #60a5fa;
-  border-radius: 2px;
-}
-
-.arrow-head {
-  position: absolute;
-  top: 50%;
-  right: 2px;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-top: 6px solid transparent;
-  border-bottom: 6px solid transparent;
-  border-left: 10px solid #60a5fa;
-}
-
-.section-title {
-  color: #fff;
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-
-.players-list {
+/* ── list ──────────────────────────────────────────────────────────────── */
+.ranking-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
 }
 
-.player-card {
+.ranking-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: rgba(0,0,0,0.2);
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  animation: slideIn 0.5s ease forwards;
-  animation-delay: var(--delay);
-  opacity: 0;
+  gap: 10px;
+  padding: 11px 18px;
+  position: relative;
+  transition: background 0.15s;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.ranking-row:last-child { border-bottom: none; }
+.ranking-row:hover { background: rgba(255,255,255,0.04); }
+
+.row-top { background: rgba(255,255,255,0.03); }
+
+/* colored left micro-bar for top 3 */
+.row-accent {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  opacity: 0.8;
 }
 
-.player-card:hover {
-  background: rgba(255,255,255,0.1);
-  transform: translateX(5px);
+/* rank number */
+.rank-wrap {
+  width: 20px;
+  flex-shrink: 0;
+  text-align: center;
 }
 
-.player-card.top-3 {
-  background: linear-gradient(135deg, rgba(255,215,0,0.1) 0%, rgba(255,255,255,0.05) 100%);
-}
-
-.player-rank {
-  width: 40px;
-  display: flex;
-  justify-content: center;
-}
-
-.medal {
-  font-size: 1.2rem;
+.rank-num {
+  font-size: 12px;
   font-weight: 700;
-  padding: 0.3rem 0.6rem;
-  border-radius: 8px;
+  color: rgba(255,255,255,0.25);
 }
 
-.medal.gold {
-  background: linear-gradient(135deg, #ffd700, #ffaa00);
-  color: #1a472a;
-}
-
-.medal.silver {
-  background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
-  color: #1a472a;
-}
-
-.medal.bronze {
-  background: linear-gradient(135deg, #cd7f32, #b87333);
+/* team dot */
+.team-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
   color: #fff;
+  letter-spacing: 0;
 }
 
-.rank-number {
-  color: rgba(255,255,255,0.5);
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.player-info {
+/* info */
+.row-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
 }
 
-.player-name {
+.row-name {
+  font-size: 13px;
+  font-weight: 500;
   color: #fff;
-  font-weight: 600;
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.player-team {
-  color: rgba(255,255,255,0.6);
-  font-size: 0.85rem;
+.row-team {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
 }
 
-.player-stats {
-  display: flex;
-  align-items: center;
+/* bar */
+.bar-wrap {
+  width: 60px;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.stat-value {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 50px;
-  background: rgba(74, 222, 128, 0.2);
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  color: #4ade80;
+.bar {
+  height: 100%;
+  border-radius: 2px;
+  background: rgba(74,222,128,0.6);
+  transition: width 0.6s ease;
+}
+
+/* value */
+.row-val {
+  font-size: 15px;
   font-weight: 700;
-  font-size: 1.1rem;
+  color: #4ade80;
+  min-width: 24px;
+  text-align: right;
+  flex-shrink: 0;
 }
 
-.stat-value.assist {
-  background: rgba(96, 165, 250, 0.2);
-  color: #60a5fa;
-}
+.row-val-blue { color: #60a5fa; }
 
+/* ── empty ─────────────────────────────────────────────────────────────── */
 .empty-state {
   text-align: center;
-  padding: 3rem;
-  color: rgba(255,255,255,0.5);
+  padding: 40px 20px;
+  color: rgba(255,255,255,0.25);
+  font-size: 13px;
 }
 
-.empty-icon {
-  margin-bottom: 1rem;
-}
-
-.empty-ball {
-  width: 50px;
-  height: 50px;
-  background: radial-gradient(circle at 30% 30%, #666 0%, #444 100%);
+.empty-circle {
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  margin: 0 auto;
-  opacity: 0.5;
+  border: 2px solid rgba(74,222,128,0.2);
+  margin: 0 auto 12px;
 }
 
-.empty-arrow {
-  width: 50px;
-  height: 30px;
-  margin: 0 auto;
-  position: relative;
-  opacity: 0.5;
+.empty-circle-blue {
+  border-color: rgba(96,165,250,0.2);
 }
 
-.empty-arrow::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 35px;
-  height: 4px;
-  background: #666;
-  border-radius: 2px;
-}
-
-.empty-arrow::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  right: 5px;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
-  border-left: 12px solid #666;
-}
-
-@media (max-width: 768px) {
-  .statistics-container {
-    grid-template-columns: 1fr;
-  }
+/* ── responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .bar-wrap { width: 40px; }
+  .row-name { font-size: 12px; }
 }
 </style>
-

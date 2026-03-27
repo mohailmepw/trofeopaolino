@@ -1,14 +1,9 @@
-# Tournament Data Update TODO
+# TODO: Solve jsconfig.json issue
 
 ## Steps:
-- [x] 1. Add players to Biennio C team and sort.
-- [x] 2. Add players to Biennio E-B team and sort.
-- [x] 3. Add players to Biennio CSA team and sort.
-- [x] 4. Add players to Biennio DSA-F team and sort.
-- [x] 5. Sort ALL biennio players by surname A-Z.
-- [x] 6. Add new team \"A\" to Triennio with players, sorted.
-- [ ] 7. Sort players in all Triennio teams.
-- [ ] 8. Test app with `npm run dev`.
+- [x] Understand files and create plan (approved)
+- [x] Create/update TODO.md with steps
+- [x] Edit jsconfig.json per plan (updated with standard Vite/Vue config: baseUrl, include)
+- [x] Verify no errors (jsconfig.json now standard; reload VSCode if needed: Ctrl+Shift+P > "Developer: Reload Window")\n- [x] Complete task
 
-Current progress: Triennio team A added and biennio sorted; sorting remaining triennio teams.
 

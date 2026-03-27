@@ -1,5 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue'
+import MatchesList from './components/MatchesList.vue'
+import StandingsTable from './components/StandingsTable.vue'
+import TeamsList from './components/TeamsList.vue'
+import StatisticsView from './components/StatisticsView.vue'
 import { biennioData, triennioData } from './data/tournamentData.js'
 
 // State
@@ -15,7 +19,7 @@ const currentData = computed(() => {
 // Helper functions
 const getTeamLogo = (teamName) => {
   const team = currentData.value.squadre.find(s => s.nome === teamName)
-  return team ? team.logo : '⚽'
+  return team ? team.logo : ''
 }
 
 const toggleTeam = (teamId) => {
@@ -47,10 +51,7 @@ const tabs = [
       
       <!-- Ball trail effect -->
       <div class="ball-trail">
-        <span class="trail-ball">⚽</span>
-        <span class="trail-ball">⚽</span>
-        <span class="trail-ball">⚽</span>
-        <span class="trail-ball">⚽</span>
+        
       </div>
       
       <!-- Player silhouettes -->
@@ -73,19 +74,16 @@ const tabs = [
     </div>
 
     <!-- Floating Balls Overlay -->
-    <div class="floating-balls">
-      <span class="ball ball-1">⚽</span>
-      <span class="ball ball-2">⚽</span>
-      <span class="ball ball-3">⚽</span>
-    </div>
+    
 
     <!-- Header -->
     <header class="header">
       <div class="header-content">
         <div class="logo-section">
-          <span class="trophy">🏆</span>
-          <h1 class="title">Paolino</h1>
-          <span class="subtitle">Torneo di Calcio Scolastico</span>
+          <div class="title-block">
+            <span class="subtitle">Torneo di Calcio Scolastico</span>
+            <h1 class="title">Paolino</h1>
+          </div>
         </div>
 
         <!-- Category Selector - Right Top -->
@@ -123,155 +121,32 @@ const tabs = [
       <!-- Tab Content -->
       <div class="tab-content">
         <!-- Squadre Tab -->
-        <div v-if="activeTab === 'squadre'" class="teams-grid">
-          <div 
-            v-for="(team, index) in currentData.squadre" 
-            :key="team.id"
-            class="team-card"
-          >
-            <div class="team-header">
-              <div class="team-logo" :style="{ background: team.color }">
-                {{ team.logo }}
-              </div>
-              <div class="team-info">
-                <div class="team-name">{{ team.nome }}</div>
-              </div>
-            </div>
-            
-            <!-- Players List - Collapsible -->
-            <div class="players-section">
-              <button 
-                class="players-toggle"
-                @click="toggleTeam(team.id)"
-              >
-                <span>Giocatori ({{ team.giocatori?.length || 0 }})</span>
-                <span class="arrow" :class="{ expanded: expandedTeams[team.id] }">▼</span>
-              </button>
-              
-              <transition name="slide">
-                <div v-if="expandedTeams[team.id]" class="players-list">
-                  <div 
-                    v-for="giocatore in team.giocatori" 
-                    :key="giocatore.nome"
-                    class="player-item"
-                  >
-                    <span class="player-name">
-                      <span v-if="giocatore.capitano" class="captain-badge">(C)</span>
-                      {{ giocatore.nome }}
-                    </span>
-                  </div>
-                </div>
-              </transition>
-            </div>
-          </div>
-          
-          <div v-if="currentData.squadre.length === 0" class="empty-state">
-            <span class="empty-icon">👥</span>
-            <p>Nessuna squadra disponibile</p>
-          </div>
-        </div>
+        <TeamsList
+          v-if="activeTab === 'squadre'"
+          :teams="currentData.squadre"
+          :matches="currentData.partite"
+        />
 
         <!-- Classifica Tab -->
-        <div v-else-if="activeTab === 'classifica'" class="standings-table">
-          <table v-if="currentData.classifica.length > 0">
-            <thead>
-              <tr>
-                <th>Pos</th>
-                <th>Squadra</th>
-                <th>Pti</th>
-                <th>G</th>
-                <th>V</th>
-                <th>N</th>
-                <th>P</th>
-                <th>DR</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(row, index) in currentData.classifica" :key="row.pos">
-                <td class="pos">{{ row.pos }}</td>
-                <td class="squadra">
-                  <span class="team-icon">{{ getTeamLogo(row.squadre) }}</span>
-                  {{ row.squadre }}
-                </td>
-                <td class="points">{{ row.p }}</td>
-                <td>{{ row.g }}</td>
-                <td>{{ row.v }}</td>
-                <td>{{ row.n }}</td>
-                <td>{{ row.p }}</td>
-                <td :class="row.dr > 0 ? 'positive' : row.dr < 0 ? 'negative' : ''">
-                  {{ row.dr > 0 ? '+' : '' }}{{ row.dr }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div v-else class="empty-state">
-            <span class="empty-icon">📊</span>
-            <p>Nessuna classifica disponibile</p>
-          </div>
-        </div>
+        <StandingsTable
+          v-else-if="activeTab === 'classifica'"
+          :standings="currentData.classifica"
+          :teams="currentData.squadre"
+        />
 
         <!-- Partite Tab -->
-        <div v-else-if="activeTab === 'partite'" class="matches-list">
-          <div 
-            v-for="(match, index) in currentData.partite" 
-            :key="index"
-            class="match-card"
-            :class="match.stato"
-          >
-            <div class="match-day">Giornata {{ match.giorata }}</div>
-            <div class="match-teams">
-              <div class="team home">
-                <span class="team-icon">{{ getTeamLogo(match.casa) }}</span>
-                <span>{{ match.casa }}</span>
-              </div>
-              <div class="score">
-                <span v-if="match.stato === 'finita'" class="result">{{ match.risultato }}</span>
-                <span v-else class="status-badge" :class="match.stato">
-                  {{ match.stato === 'oggi' ? 'OGGI' : match.stato === 'domani' ? 'DOMANI' : '' }}
-                </span>
-              </div>
-              <div class="team away">
-                <span>{{ match.ospite }}</span>
-                <span class="team-icon">{{ getTeamLogo(match.ospite) }}</span>
-              </div>
-            </div>
-          </div>
-          <div v-if="currentData.partite.length === 0" class="empty-state">
-            <span class="empty-icon">⚽</span>
-            <p>Nessuna partita disponibile</p>
-          </div>
-        </div>
+        <MatchesList
+          v-else-if="activeTab === 'partite'"
+          :matches="currentData.partite"
+          :teams="currentData.squadre"
+        />
 
         <!-- Statistiche Tab -->
-        <div v-else-if="activeTab === 'statistiche'" class="statistics-view">
-          <div class="stats-section">
-            <h3 class="stats-title">🏆 Top Marcatori</h3>
-            <div v-if="currentData.statistiche?.migliorMarcatore?.length > 0" class="stats-list">
-              <div v-for="(stat, index) in currentData.statistiche.migliorMarcatore" :key="index" class="stat-item">
-                <span class="stat-name">{{ stat.giocatore }}</span>
-                <span class="stat-value">{{ stat.gol }} gol</span>
-              </div>
-            </div>
-            <div v-else class="empty-state">
-              <span class="empty-icon">⚽</span>
-              <p>Ancora nessun gol</p>
-            </div>
-          </div>
-
-          <div class="stats-section">
-            <h3 class="stats-title">🧤 Clean Sheets</h3>
-            <div v-if="currentData.statistiche?.cleanSheets?.length > 0" class="stats-list">
-              <div v-for="(stat, index) in currentData.statistiche.cleanSheets" :key="index" class="stat-item">
-                <span class="stat-name">{{ stat.portiere }}</span>
-                <span class="stat-value">{{ stat.cleanSheets }} partite</span>
-              </div>
-            </div>
-            <div v-else class="empty-state">
-              <span class="empty-icon">🧤</span>
-              <p>Ancora nessuna clean sheet</p>
-            </div>
-          </div>
-        </div>
+        <StatisticsView
+          v-else-if="activeTab === 'statistiche'"
+          :statistiche="currentData.statistiche"
+          :teams="currentData.squadre"
+        />
       </div>
     </main>
 
@@ -283,6 +158,8 @@ const tabs = [
 </template>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -290,9 +167,9 @@ const tabs = [
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Outfit', sans-serif;
   min-height: 100vh;
-  background: #0a0a0a;
+  background: #060b12;
 }
 
 .app-container {
@@ -301,298 +178,225 @@ body {
   overflow-x: hidden;
 }
 
-/* Dark Football Background */
+/* ── Background ─────────────────────────────────────────────────────────── */
 .football-bg {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   z-index: 0;
-  background: linear-gradient(180deg, #0d1b2a 0%, #1b263b 50%, #0d1117 100%);
+  background: linear-gradient(180deg, #060c16 0%, #08111e 55%, #071018 100%);
   overflow: hidden;
 }
 
+/* ── Sky: luci spalti dall'alto ─────────────────────────────────────────── */
 .dark-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(ellipse at 50% 0%, rgba(74, 222, 128, 0.1) 0%, transparent 60%);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background:
+    radial-gradient(ellipse 30% 40% at 20% 0%, rgba(255, 230, 120, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 30% 40% at 80% 0%, rgba(255, 230, 120, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 20% 30% at 50% 0%, rgba(255, 245, 180, 0.07) 0%, transparent 60%);
 }
 
-/* Stadium Lights */
+/* ── Fasci di luce degli spalti ─────────────────────────────────────────── */
 .stadium-lights {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
 }
 
 .light-beam {
   position: absolute;
-  top: -50%;
-  width: 200px;
-  height: 150%;
-  background: linear-gradient(180deg, rgba(255, 250, 200, 0.08) 0%, transparent 100%);
+  top: 0;
+  width: 180px;
+  height: 100%;
   transform-origin: top center;
+  background: linear-gradient(180deg,
+    rgba(255, 245, 160, 0.10) 0%,
+    rgba(255, 245, 160, 0.04) 30%,
+    transparent 70%
+  );
+  animation: beamPulse 5s ease-in-out infinite;
 }
 
 .beam-1 {
-  left: 10%;
-  transform: rotate(15deg);
-  animation: lightSweep 8s infinite ease-in-out;
+  left: 18%;
+  transform: rotate(8deg);
+  animation-delay: 0s;
 }
-
 .beam-2 {
   left: 50%;
   transform: translateX(-50%) rotate(0deg);
-  animation: lightSweep 8s infinite ease-in-out 2s;
+  background: linear-gradient(180deg,
+    rgba(255, 245, 160, 0.07) 0%,
+    rgba(255, 245, 160, 0.02) 30%,
+    transparent 60%
+  );
+  animation-delay: -1.5s;
 }
-
 .beam-3 {
-  right: 10%;
-  transform: rotate(-15deg);
-  animation: lightSweep 8s infinite ease-in-out 4s;
+  right: 18%;
+  transform: rotate(-8deg);
+  animation-delay: -3s;
 }
 
-@keyframes lightSweep {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+@keyframes beamPulse {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1;   }
 }
 
-/* Ball Trail Effect */
+/* ── Spalti: fascia orizzontale con crowd dots ───────────────────────────── */
 .ball-trail {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.trailing-ball {
-  position: absolute;
-  font-size: 1.5rem;
-  opacity: 0;
-  animation: ballDribble 12s infinite linear;
-}
-
-.trail-ball:nth-child(1) {
-  top: 30%;
-  left: -5%;
-  animation: dribble1 8s infinite ease-in-out;
-}
-
-.trail-ball:nth-child(2) {
-  top: 50%;
-  left: -5%;
-  animation: dribble2 10s infinite ease-in-out 2s;
-}
-
-.trail-ball:nth-child(3) {
-  top: 70%;
-  left: -5%;
-  animation: dribble3 12s infinite ease-in-out 4s;
-}
-
-.trail-ball:nth-child(4) {
-  top: 40%;
-  right: -5%;
-  animation: shoot1 6s infinite ease-out;
-}
-
-@keyframes dribble1 {
-  0% { left: -5%; opacity: 0; transform: scale(0.5); }
-  10% { opacity: 0.6; }
-  90% { opacity: 0.6; }
-  100% { left: 105%; opacity: 0; transform: scale(1); }
-}
-
-@keyframes dribble2 {
-  0% { left: -5%; opacity: 0; transform: scale(0.5); }
-  10% { opacity: 0.5; }
-  50% { top: 60%; }
-  90% { opacity: 0.5; }
-  100% { left: 105%; opacity: 0; transform: scale(1); }
-}
-
-@keyframes dribble3 {
-  0% { left: -5%; opacity: 0; transform: scale(0.5); }
-  10% { opacity: 0.4; }
-  30% { top: 50%; }
-  70% { top: 80%; }
-  90% { opacity: 0.4; }
-  100% { left: 105%; opacity: 0; transform: scale(1); }
-}
-
-@keyframes shoot1 {
-  0% { right: -5%; opacity: 0; transform: scale(0.5) rotate(0deg); }
-  20% { opacity: 0.8; }
-  100% { right: 105%; opacity: 0; transform: scale(1.5) rotate(720deg); }
-}
-
-/* Player Silhouettes */
-.player-scene {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 60%;
-}
-
-.player {
-  position: absolute;
-  bottom: 10%;
-}
-
-.player-body {
-  width: 30px;
-  height: 60px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
-  border-radius: 15px 15px 5px 5px;
-  position: relative;
-}
-
-.player-body::before {
-  content: '';
-  position: absolute;
-  top: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 18px;
-  height: 18px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 50%;
-}
-
-.player-body::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 25px;
-  height: 8px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 50%;
-  filter: blur(3px);
-}
-
-.player-1 {
-  left: 15%;
-  animation: playerRun 4s infinite ease-in-out;
-}
-
-.player-1 .player-ball {
-  position: absolute;
-  bottom: 20px;
-  left: 35px;
-  font-size: 1rem;
-  animation: ballDribble1 0.5s infinite;
-}
-
-@keyframes playerRun {
-  0%, 100% { transform: translateY(0) rotate(-5deg); }
-  50% { transform: translateY(-10px) rotate(5deg); }
-}
-
-@keyframes ballDribble1 {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(10px); }
-}
-
-.player-2 {
-  left: 45%;
-  bottom: 15%;
-  animation: playerRun 4s infinite ease-in-out 1s;
-}
-
-.player-3 {
-  right: 20%;
-  animation: playerShoot 3s infinite ease-out;
-}
-
-.player-3 .kick-effect {
-  position: absolute;
-  bottom: 30px;
-  left: -30px;
-  width: 40px;
-  height: 40px;
-  background: radial-gradient(circle, rgba(255,200,100,0.3) 0%, transparent 70%);
-  animation: kickFlash 1.5s infinite;
-}
-
-@keyframes playerShoot {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(-15px); }
-}
-
-@keyframes kickFlash {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.2); }
-}
-
-/* Grass Texture */
-.grass-texture {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 25%;
-  background: linear-gradient(180deg, transparent 0%, rgba(34, 139, 34, 0.3) 100%);
-}
-
-.grass-texture::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: repeating-linear-gradient(
-    90deg,
-    transparent,
-    transparent 40px,
-    rgba(255,255,255,0.02) 40px,
-    rgba(255,255,255,0.02) 80px
-  );
-}
-
-/* Floating Balls */
-.floating-balls {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
+  bottom: 38%; left: 0;
+  width: 100%; height: 80px;
   overflow: hidden;
 }
 
-.ball {
+/* Fila di puntini degli spalti — crowd */
+.ball-trail::before {
+  content: '';
   position: absolute;
-  font-size: 2rem;
-  opacity: 0.08;
-  animation: float 15s infinite ease-in-out;
+  inset: 0;
+  background:
+    radial-gradient(circle 2px at 5% 40%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(circle 2px at 9% 60%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(circle 2px at 13% 35%, rgba(255,200,100,0.4) 0%, transparent 100%),
+    radial-gradient(circle 2px at 17% 55%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(circle 2px at 21% 40%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(circle 2px at 25% 65%, rgba(255,200,100,0.35) 0%, transparent 100%),
+    radial-gradient(circle 2px at 29% 45%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(circle 2px at 33% 55%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(circle 2px at 37% 38%, rgba(255,200,100,0.25) 0%, transparent 100%),
+    radial-gradient(circle 2px at 41% 62%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(circle 2px at 45% 42%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(circle 2px at 49% 58%, rgba(255,200,100,0.4) 0%, transparent 100%),
+    radial-gradient(circle 2px at 53% 40%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(circle 2px at 57% 65%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(circle 2px at 61% 45%, rgba(255,200,100,0.35) 0%, transparent 100%),
+    radial-gradient(circle 2px at 65% 55%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(circle 2px at 69% 38%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(circle 2px at 73% 62%, rgba(255,200,100,0.3) 0%, transparent 100%),
+    radial-gradient(circle 2px at 77% 42%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(circle 2px at 81% 55%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(circle 2px at 85% 40%, rgba(255,200,100,0.4) 0%, transparent 100%),
+    radial-gradient(circle 2px at 89% 60%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(circle 2px at 93% 45%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(circle 2px at 97% 55%, rgba(255,200,100,0.35) 0%, transparent 100%);
+  animation: crowdFlicker 4s ease-in-out infinite;
 }
 
-.ball-1 { top: 10%; left: 10%; animation-delay: 0s; }
-.ball-2 { top: 60%; left: 80%; animation-delay: -5s; }
-.ball-3 { top: 80%; left: 30%; animation-delay: -10s; }
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-30px) rotate(90deg); }
-  50% { transform: translateY(-10px) rotate(180deg); }
-  75% { transform: translateY(-40px) rotate(270deg); }
+/* Seconda fila */
+.ball-trail::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle 1.5px at 7% 20%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 15% 25%, rgba(255,200,100,0.2) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 23% 18%, rgba(255,255,255,0.18) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 31% 28%, rgba(255,255,255,0.12) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 39% 22%, rgba(255,200,100,0.2) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 47% 18%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 55% 26%, rgba(255,200,100,0.18) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 63% 20%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 71% 24%, rgba(255,255,255,0.12) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 79% 18%, rgba(255,200,100,0.2) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 87% 26%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 95% 22%, rgba(255,200,100,0.18) 0%, transparent 100%);
+  animation: crowdFlicker 6s ease-in-out infinite reverse;
 }
+
+@keyframes crowdFlicker {
+  0%, 100% { opacity: 0.7; }
+  25%       { opacity: 1;   }
+  50%       { opacity: 0.6; }
+  75%       { opacity: 0.9; }
+}
+
+/* ── Campo verde ─────────────────────────────────────────────────────────── */
+.player-scene {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 38%;
+  background: linear-gradient(180deg,
+    rgba(10, 85, 38, 0.6) 0%,
+    rgba(8, 68, 30, 0.92) 100%
+  );
+  overflow: hidden;
+}
+
+/* Strisce campo */
+.player-scene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255,255,255,0.0)   0px,
+    rgba(255,255,255,0.0)   70px,
+    rgba(255,255,255,0.022) 70px,
+    rgba(255,255,255,0.022) 140px
+  );
+}
+
+/* Linea metà campo + cerchio */
+.player-scene::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.0)  0%,
+    rgba(255,255,255,0.18) 20%,
+    rgba(255,255,255,0.18) 80%,
+    rgba(255,255,255,0.0)  100%
+  );
+  box-shadow: 0 0 0 78px transparent,
+              0 0 0 80px rgba(255,255,255,0.06);
+}
+
+/* Riflesso luci spalti sul campo — animato */
+.grass-texture {
+  position: absolute;
+  bottom: 38%; left: 0;
+  width: 100%; height: 80px;
+  background: linear-gradient(180deg, transparent 0%, rgba(10, 80, 35, 0.45) 100%);
+  pointer-events: none;
+}
+
+/* Luci spalti: riflesso dinamico */
+.grass-texture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 35% 80% at 20% 100%, rgba(255, 235, 100, 0.1) 0%, transparent 70%),
+    radial-gradient(ellipse 35% 80% at 80% 100%, rgba(255, 235, 100, 0.1) 0%, transparent 70%);
+  animation: pitchLightPulse 4s ease-in-out infinite;
+}
+
+@keyframes pitchLightPulse {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1.0; }
+}
+
+/* Nasconde elementi vecchi */
+.player { display: none; }
+.player-body { display: none; }
+.kick-effect { display: none; }
+.floating-balls { display: none; }
+.ball { display: none; }
 
 /* Header */
 .header {
   position: relative;
   z-index: 10;
-  padding: 2rem;
+  padding: 1.6rem 2rem;
 }
 
 .header-content {
@@ -608,29 +412,35 @@ body {
 .logo-section {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
 }
 
-.trophy {
-  font-size: 2.5rem;
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-.title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #fff;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+.title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .subtitle {
-  font-size: 1rem;
-  color: #4ade80;
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-weight: 400;
+  line-height: 1;
+  margin-bottom: 2px;
+  padding-left: 3px;
+}
+
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3.6rem;
+  font-weight: 400;
+  color: #fff;
+  letter-spacing: 0.08em;
+  line-height: 0.9;
+  text-shadow:
+    0 0 60px rgba(16, 185, 129, 0.35),
+    0 2px 0 rgba(0,0,0,0.4);
 }
 
 /* Category Selector */
