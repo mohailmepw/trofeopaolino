@@ -17,7 +17,9 @@ export const biennioData = {
         { nome: "Marco Pipoli", capitano: false, esterno: false },
         { nome: "Federico Sala", capitano: false, esterno: false },
         { nome: "Angelo Solimine", capitano: false, esterno: false },
-        { nome: "Vito Turchiarelli", capitano: false, esterno: false }
+        { nome: "Vito Turchiarelli", capitano: false, esterno: false },
+        { nome: "Filippo Totaro", capitano: false, esterno: false },
+        { nome: "Gerardo Longo", capitano: false, esterno: false }
       ]
     },
     {
@@ -162,7 +164,7 @@ export const biennioData = {
       orario: "19:00",
       marcatori: [
         { nome: "Piserchia", squadra: "BSA", gol: 3 },
-        { nome: "Abruzzese", squadra: "BSA", gol: 1 },
+        { nome: "Abbruzzese", squadra: "BSA", gol: 1 },
         { nome: "Clemente", squadra: "C", gol: 1 },
         { nome: "Di Gennaro", squadra: "C", gol: 1 }
       ]
@@ -288,7 +290,8 @@ export const biennioData = {
       { nome: "Ibrahima Diouf", squadra: "ASA-A", gol: 1 },
       { nome: "Mattia Vecchini", squadra: "D", gol: 1 },
       {nome: "Federico Sala", squadra: "ASA-A", gol: 1 },
-      { nome: "Luca Abruzzese", squadra: "BSA", gol: 1 },
+      { nome: "Luca Abbruzzese", squadra: "BSA", gol: 1 },
+      { nome: "Jacob Tonti", squadra: "D", gol: 1 },
       { nome: "Alberto Finizio", squadra: "E-B", gol: 1 },
       { nome: "Giovanni Clemente", squadra: "C", gol: 1 },
       { nome: "Nicola Di Gennaro", squadra: "C", gol: 1 },
@@ -729,6 +732,7 @@ export const triennioData = {
       { nome: "Alfonso Berlangeri", squadra: "CSA", gol: 1 },
       { nome: "Nicola D'Andrea", squadra: "E-BSA", gol: 1 },
       { nome: "Antonio Di Vito", squadra: "FSA-B", gol: 1 },
+      { nome: "Alessandro Di Gioia", squadra: "ASA-C", gol: 1 },
       { nome: "Giuseppe Gesualdi", squadra: "ESA-DSA", gol: 1 },
       { nome: "Domenico Iascone", squadra: "FSA-B", gol: 1 },
       { nome: "Andrea Annese", squadra: "E-BSA", gol: 1 },
