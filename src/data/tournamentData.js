@@ -8,7 +8,7 @@ export const biennioData = {
       logo: "",
       giocatori: [
         { nome: "Mohamed Amlal", capitano: true, esterno: false },
-        { nome: "Luca Allegretti", capitano: false, esterno: true },
+        { nome: "Nounke Traore", capitano: false, esterno: true },
         { nome: "Pierpaolo Anguilano", capitano: false, esterno: false },
         { nome: "Lorenzo Bonavoglia", capitano: false, esterno: false },
         { nome: "Francesco Di Biase", capitano: false, esterno: false },
@@ -61,7 +61,7 @@ export const biennioData = {
     },
     {
       id: 4,
-      nome: "DSA",
+      nome: "DSA-F",
       color: "#f4a261",
       logo: "",
       giocatori: [
@@ -73,7 +73,8 @@ export const biennioData = {
         { nome: "Giovanni Di Giorgio", capitano: false, esterno: false },
         { nome: "Diego Mancano", capitano: false, esterno: true },
         { nome: "Gerardo Del Viscovo", capitano: false, esterno: false },
-        { nome: "Francesco Mogosan", capitano: false, esterno: false }
+        { nome: "Francesco Mogosan", capitano: false, esterno: false },
+        { nome: "Andrea Grossano", capitano: false, esterno: false },
       ]
     },
     {
@@ -115,12 +116,12 @@ export const biennioData = {
   ],
 
   classifica: [
-    { pos: 1, squadre: "DSA", punti: 3, g: 1, v: 1, n: 0, s: 0, dr: 3 },
-    { pos: 2, squadre: "BSA",   punti: 3, g: 1, v: 1, n: 0, s: 0, dr: 2 },
-    { pos: 3, squadre: "D",   punti: 3, g: 1, v: 1, n: 0, s: 0, dr: 1 },
-    { pos: 4, squadre: "E-B",   punti: 0, g: 1, v: 0, n: 0, s: 1, dr: -1 },
-    { pos: 5, squadre: "C",   punti: 0, g: 1, v: 0, n: 0, s: 1, dr: -2 },
-    { pos: 6, squadre: "ASA-A",     punti: 0, g: 1, v: 0, n: 0, s: 1, dr: -3 }
+    { pos: 1, squadre: "BSA", punti: 6, g: 2, v: 2, n: 0, s: 0, dr: 10 },
+    { pos: 2, squadre: "D",   punti: 6, g: 2, v: 2, n: 0, s: 0, dr: 5 },
+    { pos: 3, squadre: "E-B",   punti: 3, g: 1, v: 1, n: 0, s: 1, dr: 10 },
+    { pos: 4, squadre: "DSA-F",   punti: 3, g: 1, v: 1, n: 0, s: 1, dr: -5 },
+    { pos: 5, squadre: "C",   punti: 0, g: 1, v: 0, n: 0, s: 2, dr: -6 },
+    { pos: 6, squadre: "ASA-A",     punti: 0, g: 1, v: 0, n: 0, s: 2, dr: -14 }
   ],
   partite: [
     {
@@ -174,32 +175,49 @@ export const biennioData = {
       casa: "D",
       ospite: "C",
       giorno: "lunedi' 30 marzo",
-      risultato: "",
+      risultato: "6-1",
       orario: "16:00",
-      marcatori: []
+      marcatori: [
+        { nome: "Vecchini", squadra: "D", gol: 1 },
+        { nome: "Landi", squadra: "D", gol: 3 },
+        { nome: "Tonti", squadra: "D", gol: 1 },
+        { nome: "Cecafosso", squadra: "D", gol: 1 },
+        { nome: "Pappani", squadra: "C", gol: 1 }
+      ]
     },
     {
       giornata: 2,
       casa: "ASA-A",
       ospite: "E-B",
       giorno: "lunedi' 30 marzo",
-      risultato: "",
+      risultato: "0-11",
       orario: "17:00",
-      marcatori: []
+      marcatori: [
+        { nome: "Lanza", squadra: "E-B", gol: 6 },
+        { nome: "Schiavulli", squadra: "E-B", gol: 2 },
+        { nome: "Lavanga", squadra: "E-B", gol: 1 },
+        { nome: "Rosania", squadra: "E-B", gol: 1 },
+        { nome: "D'Atri", squadra: "E-B", gol: 1 }
+      ]
     },
     {
       giornata: 2,
       casa: "BSA",
-      ospite: "DSA",
+      ospite: "DSA-F",
       giorno: "martedi' 31 marzo",
-      risultato: "",
+      risultato: "9-1",
       orario: "16:00",
-      marcatori: []
+      marcatori: [
+        { nome: "Piserchia", squadra: "BSA", gol: 4 },
+        { nome: "Vinciguerra", squadra: "BSA", gol: 2 },
+        { nome: "Stango", squadra: "BSA", gol: 3 },
+        { nome: "Catalano", squadra: "DSA", gol: 1 }
+      ]
     },
      {
       giornata: 3,
       casa: "E-B",
-      ospite: "DSA",
+      ospite: "DSA-F",
       giorno: "martedi' 7 aprile",
       risultato: "",
       orario: "16:00",
@@ -234,7 +252,7 @@ export const biennioData = {
     },
     {
       giornata: 4,
-      casa: "DSA",
+      casa: "DSA-F",
       ospite: "C",
       giorno: "lunedi' 13 aprile",
       risultato: "",
@@ -261,7 +279,7 @@ export const biennioData = {
     },
     {
       giornata: 5,
-      casa: "DSA",
+      casa: "DSA-F",
       ospite: "D",
       giorno: "lunedi' 20 aprile",
       risultato: "",
@@ -280,23 +298,34 @@ export const biennioData = {
   ],
   statistiche: {
     migliorMarcatore: [
+      { nome: "Emanuele Lanza", squadra: "E-B", gol: 9 },
+      { nome: "Emanuele Piserchia", squadra: "BSA", gol: 7 },
+      { nome: "Christian Stango", squadra: "BSA", gol: 3 },
       { nome: "Diego Mancano", squadra: "DSA", gol: 3 },
-      { nome: "Emanuele Lanza", squadra: "E-B", gol: 3 },
-      { nome: "Emanuele Piserchia", squadra: "BSA", gol: 3 },
-      { nome: "Gianluca Catalano", squadra: "DSA", gol: 2 },
-      { nome: "Luca Allegretti", squadra: "ASA-A", gol: 2 },
-      { nome: "Carlo Pipoli", squadra: "DSA", gol: 2 },
+      { nome: "Gianluca Catalano", squadra: "DSA-F", gol: 3 },
+      { nome: "Lorenzo Landi", squadra: "D", gol: 3 },
+      { nome: "Luca Allegretti", squadra: "ASA-A.", gol: 2 },
+      { nome: "Emanuele Schiavulli", squadra: "E-B", gol: 2 },
+      { nome: "Carlo Pipoli", squadra: "DSA-F", gol: 2 },
       { nome: "Daniele Leccese", squadra: "D", gol: 2 },
-      { nome: "Ibrahima Diouf", squadra: "ASA-A", gol: 1 },
-      { nome: "Mattia Vecchini", squadra: "D", gol: 1 },
+      { nome: "Jacob Tonti", squadra: "D", gol: 2 },
+      { nome: "Mattia Vecchini", squadra: "D", gol: 2 },
       {nome: "Federico Sala", squadra: "ASA-A", gol: 1 },
       { nome: "Luca Abbruzzese", squadra: "BSA", gol: 1 },
-      { nome: "Jacob Tonti", squadra: "D", gol: 1 },
+      { nome: "Ibrahima Diouf", squadra: "ASA-A", gol: 1 },
       { nome: "Alberto Finizio", squadra: "E-B", gol: 1 },
       { nome: "Giovanni Clemente", squadra: "C", gol: 1 },
       { nome: "Nicola Di Gennaro", squadra: "C", gol: 1 },
+      { nome: "Rodolfo Rosania", squadra: "E-B", gol: 1 },
+      { nome: "Armando Pappani", squadra: "C", gol: 1 },
+      { nome: "Emanuele Schiavulli", squadra: "E-B", gol: 1 },
+      { nome: "Giuseppe Cecafosso", squadra: "D", gol: 1 },
+      { nome: "Simone Lavanga", squadra: "E-B", gol: 1 },
+      { nome: "Daniele D'Atri", squadra: "E-B", gol: 1 },
       ],
-    cleanSheets: []
+    cleanSheets: [
+      { nome: "Gabriele Lanotte", squadra: "E-B", partite: 1 },
+    ]
   }
 }
 
@@ -453,13 +482,13 @@ export const triennioData = {
     }
   ],
   classifica: [
-    { pos: 1, squadre: "ASA-C",       punti: 3, g: 1, v: 1, n: 0, s: 0, dr: 2 },
+    { pos: 1, squadre: "E-BSA",       punti: 3, g: 1, v: 1, n: 0, s: 0, dr: 2 },
     { pos: 2, squadre: "CSA", punti: 3, g: 1, v: 1, n: 0, s: 0, dr: 2 },
-    { pos: 3, squadre: "FSA-B",   punti: 1, g: 1, v: 0, n: 1, s: 0, dr: 0 },
-    { pos: 4, squadre: "ESA-DSA",   punti: 1, g: 1, v: 0, n: 1, s: 0, dr: 0 },
-    { pos: 5, squadre: "D",     punti: 0, g: 0, v: 0, n: 0, s: 0, dr: 0 },
-    { pos: 6, squadre: "A",   punti: 0, g: 1, v: 0, n: 0, s: 1, dr: -2 },
-    { pos: 7, squadre: "E-BSA",       punti: 0, g: 1, v: 0, n: 0, s: 1, dr: -2 }
+    { pos: 3, squadre: "ASA-C",   punti: 3, g: 2, v: 1, n: 0, s: 1, dr: 2 },
+    { pos: 4, squadre: "FSA-B",   punti: 2, g: 2, v: 0, n: 2, s: 0, dr: 0 },
+    { pos: 5, squadre: "A",     punti: 1, g: 2, v: 0, n: 1, s: 1, dr: -2 },
+    { pos: 6, squadre: "ESA-DSA",   punti: 1, g: 2, v: 0, n: 1, s: 1, dr: -4 },
+    { pos: 7, squadre: "D",       punti: 0, g: 0, v: 0, n: 0, s: 0, dr: 0 }
   ],
   partite: [
     {
@@ -527,14 +556,21 @@ export const triennioData = {
       ospite: "FSA-B",
       giorno: "mercoledi' 1 aprile",
       orario: "16:00",
-      risultato: "",
-      marcatori: []
+      risultato: "4-4",
+      marcatori: [
+        { nome: "Barbato", squadra: "FSA-B", gol: 1 },
+        { nome: "Rollo", squadra: "FSA-B", gol: 1 },
+        { nome: "Capozzi", squadra: "FSA-B", gol: 1 },
+        { nome: "Colapietro", squadra: "FSA-B", gol: 1 },
+        { nome: "Ambrosino", squadra: "A", gol: 3 },
+        { nome: "Soragnese", squadra: "A", gol: 1 }
+      ]
     },
     {
       giornata: 2,
       casa: "CSA",
       ospite: "D",
-      giorno: "mercoledi' 1 aprile",
+      giorno: "Rinviata a mercoledi' 8 aprile",
       orario: "18:00",
       risultato: "",
       marcatori: []
@@ -545,8 +581,14 @@ export const triennioData = {
       ospite: "ESA-DSA",
       giorno: "venerdi' 3 aprile",
       orario: "17:00",
-      risultato: "",
-      marcatori: []
+      risultato: "5-1",
+      marcatori: [
+        { nome: "Leccese", squadra: "E-BSA", gol: 2 },
+        { nome: "Accarino", squadra: "E-BSA", gol: 1 },
+        { nome: "Perla", squadra: "E-BSA", gol: 1 },
+        { nome: "Saracino", squadra: "E-BSA", gol: 1 },
+        { nome: "Gesualdi", squadra: "ESA-DSA", gol: 1 }
+      ]
     },
     {
       giornata: 3,
@@ -726,19 +768,28 @@ export const triennioData = {
   ],
   statistiche: {
     migliorMarcatore: [
+      { nome: "Matteo Ambrosino", squadra: "A", gol: 4 },
       { nome: "Samuele Saponaro", squadra: "CSA", gol: 3 },
       { nome: "Andrea Sabbetti", squadra: "ESA-DSA", gol: 2 },
-      { nome: "Sergio Barbato", squadra: "FSA-B", gol: 1 },
+      { nome: "Sergio Barbato", squadra: "FSA-B", gol: 2 },
+      { nome: "Giuseppe Gesualdi", squadra: "ESA-DSA", gol: 2 },
+      { nome: "Samuele Leccese", squadra: "ESA-DSA", gol: 2 },
       { nome: "Alfonso Berlangeri", squadra: "CSA", gol: 1 },
       { nome: "Nicola D'Andrea", squadra: "E-BSA", gol: 1 },
       { nome: "Antonio Di Vito", squadra: "FSA-B", gol: 1 },
+      { nome: "Nicola D'Andrea", squadra: "E-BSA", gol: 1 },
+      { nome: "Giuseppe Perla", squadra: "E-BSA", gol: 1 },
+      { nome: "Mario Saracino", squadra: "E-BSA", gol: 1 },
       { nome: "Alessandro Di Gioia", squadra: "ASA-C", gol: 1 },
-      { nome: "Giuseppe Gesualdi", squadra: "ESA-DSA", gol: 1 },
       { nome: "Domenico Iascone", squadra: "FSA-B", gol: 1 },
+      { nome: "Vittorio Capozzi", squadra: "FSA-B", gol: 1 },
+      { nome: "Gabriele Accarino", squadra: "E-BSA", gol: 1 },
+      { nome: "Leonardo Rollo", squadra: "FSA-B", gol: 1 },
+      { nome: "Francesco Colapietro", squadra: "FSA-B", gol: 1 },
       { nome: "Andrea Annese", squadra: "E-BSA", gol: 1 },
       { nome: "Andrea Maddalena", squadra: "ASA-C", gol: 1 },
       { nome: "Giuseppe Guadagno", squadra: "ASA-C", gol: 1 },
-      { nome: "Matteo Ambrosino", squadra: "A", gol: 1 },
+  
     ],
     cleanSheets: []
   }
