@@ -118,10 +118,10 @@ export const biennioData = {
   classifica: [
     { pos: 1, squadre: "BSA", punti: 6, g: 2, v: 2, n: 0, s: 0, dr: 10 },
     { pos: 2, squadre: "D",   punti: 6, g: 2, v: 2, n: 0, s: 0, dr: 5 },
-    { pos: 3, squadre: "E-B",   punti: 3, g: 1, v: 1, n: 0, s: 1, dr: 10 },
-    { pos: 4, squadre: "DSA-F",   punti: 3, g: 1, v: 1, n: 0, s: 1, dr: -5 },
-    { pos: 5, squadre: "C",   punti: 0, g: 1, v: 0, n: 0, s: 2, dr: -6 },
-    { pos: 6, squadre: "ASA-A",     punti: 0, g: 1, v: 0, n: 0, s: 2, dr: -14 }
+    { pos: 3, squadre: "E-B",   punti: 3, g: 2, v: 1, n: 0, s: 1, dr: 10 },
+    { pos: 4, squadre: "DSA-F",   punti: 3, g: 2, v: 1, n: 0, s: 1, dr: -5 },
+    { pos: 5, squadre: "C",   punti: 0, g: 2, v: 0, n: 0, s: 2, dr: -6 },
+    { pos: 6, squadre: "ASA-A",     punti: 0, g: 2, v: 0, n: 0, s: 2, dr: -14 }
   ],
   partite: [
     {
@@ -227,7 +227,7 @@ export const biennioData = {
       giornata: 3,
       casa: "C",
       ospite: "ASA-A",
-      giorno: "martedi' 7 aprile",
+      giorno: "rinviata a data da destinarsi",
       risultato: "",
       orario: "17:00",
       marcatori: []
@@ -482,9 +482,9 @@ export const triennioData = {
     }
   ],
   classifica: [
-    { pos: 1, squadre: "E-BSA",       punti: 3, g: 1, v: 1, n: 0, s: 0, dr: 2 },
+    { pos: 1, squadre: "E-BSA",       punti: 3, g: 2, v: 1, n: 0, s: 0, dr: 2 },
     { pos: 2, squadre: "CSA", punti: 3, g: 1, v: 1, n: 0, s: 0, dr: 2 },
-    { pos: 3, squadre: "ASA-C",   punti: 3, g: 2, v: 1, n: 0, s: 1, dr: 2 },
+    { pos: 3, squadre: "ASA-C",   punti: 3, g: 1, v: 1, n: 0, s: 1, dr: 2 },
     { pos: 4, squadre: "FSA-B",   punti: 2, g: 2, v: 0, n: 2, s: 0, dr: 0 },
     { pos: 5, squadre: "A",     punti: 1, g: 2, v: 0, n: 1, s: 1, dr: -2 },
     { pos: 6, squadre: "ESA-DSA",   punti: 1, g: 2, v: 0, n: 1, s: 1, dr: -4 },
