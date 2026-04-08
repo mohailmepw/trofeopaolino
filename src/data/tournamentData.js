@@ -105,7 +105,6 @@ export const biennioData = {
         { nome: "Franceco De Lorenzo", capitano: false, esterno: false },
         { nome: "Daniele Leccese", capitano: false, esterno: false },
         { nome: "Lorenzo Landi", capitano: false, esterno: true },
-        { nome: "Daniele Mazzi", capitano: false, esterno: false },
         { nome: "Matteo Notarangelo", capitano: false, esterno: false },
         { nome: "Antonio Figurelli", capitano: false, esterno: false },
         { nome: "Giuseppe Rubino", capitano: false, esterno: false },
