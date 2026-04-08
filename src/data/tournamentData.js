@@ -227,9 +227,9 @@ export const biennioData = {
       giornata: 3,
       casa: "C",
       ospite: "ASA-A",
-      giorno: "rinviata a data da destinarsi",
+      giorno: "rinviata a venerdi' 10 aprile",
       risultato: "",
-      orario: "17:00",
+      orario: "18:00",
       marcatori: []
     },
     {
@@ -482,9 +482,9 @@ export const triennioData = {
     }
   ],
   classifica: [
-    { pos: 1, squadre: "E-BSA",       punti: 3, g: 2, v: 1, n: 0, s: 0, dr: 2 },
+    { pos: 1, squadre: "E-BSA",       punti: 3, g: 2, v: 1, n: 0, s: 1, dr: 2 },
     { pos: 2, squadre: "CSA", punti: 3, g: 1, v: 1, n: 0, s: 0, dr: 2 },
-    { pos: 3, squadre: "ASA-C",   punti: 3, g: 1, v: 1, n: 0, s: 1, dr: 2 },
+    { pos: 3, squadre: "ASA-C",   punti: 3, g: 1, v: 1, n: 0, s: 0, dr: 2 },
     { pos: 4, squadre: "FSA-B",   punti: 2, g: 2, v: 0, n: 2, s: 0, dr: 0 },
     { pos: 5, squadre: "A",     punti: 1, g: 2, v: 0, n: 1, s: 1, dr: -2 },
     { pos: 6, squadre: "ESA-DSA",   punti: 1, g: 2, v: 0, n: 1, s: 1, dr: -4 },
@@ -571,7 +571,7 @@ export const triennioData = {
       casa: "CSA",
       ospite: "D",
       giorno: "Rinviata a mercoledi' 8 aprile",
-      orario: "18:00",
+      orario: "19:00",
       risultato: "",
       marcatori: []
     },
